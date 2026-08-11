@@ -1,4 +1,5 @@
-readelf -s tiny
+command: readelf -s tiny'
+-------------------------------------------------------------------
 
 Symbol table '.dynsym' contains 3 entries:
    Num:    Value          Size Type    Bind   Vis      Ndx Name

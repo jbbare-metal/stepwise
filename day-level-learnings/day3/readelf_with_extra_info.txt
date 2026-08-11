@@ -1,5 +1,5 @@
 command: readelf --debug-dump=info,line,frames tiny
-
+-------------------------------------------------------------------
 
 Contents of the .eh_frame section:
 
