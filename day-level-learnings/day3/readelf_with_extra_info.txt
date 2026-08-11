@@ -1,0 +1,183 @@
+command: readelf --debug-dump=info,line,frames tiny
+
+
+Contents of the .eh_frame section:
+
+
+00000000 0000000000000014 00000000 CIE
+  Version:               1
+  Augmentation:          "zR"
+  Code alignment factor: 1
+  Data alignment factor: -8
+  Return address column: 16
+  Augmentation data:     1b
+  DW_CFA_def_cfa: r7 (rsp) ofs 8
+  DW_CFA_offset: r16 (rip) at cfa-8
+  DW_CFA_nop
+  DW_CFA_nop
+
+00000018 0000000000000010 0000001c FDE cie=00000000 pc=0000000000401020..0000000000401046
+  DW_CFA_advance_loc: 4 to 0000000000401024
+  DW_CFA_undefined: r16 (rip)
+
+0000002c 0000000000000010 00000030 FDE cie=00000000 pc=0000000000401050..0000000000401055
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+
+00000040 000000000000001c 00000044 FDE cie=00000000 pc=0000000000401106..000000000040111e
+  DW_CFA_advance_loc: 5 to 000000000040110b
+  DW_CFA_def_cfa_offset: 16
+  DW_CFA_offset: r6 (rbp) at cfa-16
+  DW_CFA_advance_loc: 3 to 000000000040110e
+  DW_CFA_def_cfa_register: r6 (rbp)
+  DW_CFA_advance_loc: 15 to 000000000040111d
+  DW_CFA_def_cfa: r7 (rsp) ofs 8
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+
+00000060 000000000000001c 00000064 FDE cie=00000000 pc=000000000040111e..0000000000401141
+  DW_CFA_advance_loc: 5 to 0000000000401123
+  DW_CFA_def_cfa_offset: 16
+  DW_CFA_offset: r6 (rbp) at cfa-16
+  DW_CFA_advance_loc: 3 to 0000000000401126
+  DW_CFA_def_cfa_register: r6 (rbp)
+  DW_CFA_advance_loc: 26 to 0000000000401140
+  DW_CFA_def_cfa: r7 (rsp) ofs 8
+  DW_CFA_nop
+  DW_CFA_nop
+  DW_CFA_nop
+
+00000080 ZERO terminator
+
+
+Contents of the .debug_info section:
+
+  Compilation Unit @ offset 0:
+   Length:        0x97 (32-bit)
+   Version:       5
+   Unit Type:     DW_UT_compile (1)
+   Abbrev Offset: 0
+   Pointer Size:  8
+ <0><c>: Abbrev Number: 2 (DW_TAG_compile_unit)
+    <d>   DW_AT_producer    : (indirect string, offset: 0): GNU C17 13.3.0 -mtune=generic -march=x86-64 -g -O0 -fno-omit-frame-pointer -fasynchronous-unwind-tables -fstack-protector-strong -fstack-clash-protection -fcf-protection
+    <11>   DW_AT_language    : 29       (C11)
+    <12>   DW_AT_name        : (indirect line string, offset: 0x38): tiny.c
+    <16>   DW_AT_comp_dir    : (indirect line string, offset: 0): /home/jam-nitro/Documents/career_plan_debugger/stepwise
+    <1a>   DW_AT_low_pc      : 0x401106
+    <22>   DW_AT_high_pc     : 0x3b
+    <2a>   DW_AT_stmt_list   : 0
+ <1><2e>: Abbrev Number: 3 (DW_TAG_subprogram)
+    <2f>   DW_AT_external    : 1
+    <2f>   DW_AT_name        : (indirect string, offset: 0xaa): main
+    <33>   DW_AT_decl_file   : 1
+    <34>   DW_AT_decl_line   : 5
+    <35>   DW_AT_decl_column : 5
+    <36>   DW_AT_prototyped  : 1
+    <36>   DW_AT_type        : <0x5e>
+    <3a>   DW_AT_low_pc      : 0x40111e
+    <42>   DW_AT_high_pc     : 0x23
+    <4a>   DW_AT_frame_base  : 1 byte block: 9c         (DW_OP_call_frame_cfa)
+    <4c>   DW_AT_call_all_tail_calls: 1
+    <4c>   DW_AT_sibling     : <0x5e>
+ <2><50>: Abbrev Number: 4 (DW_TAG_variable)
+    <51>   DW_AT_name        : x
+    <53>   DW_AT_decl_file   : 1
+    <54>   DW_AT_decl_line   : 6
+    <55>   DW_AT_decl_column : 9
+    <56>   DW_AT_type        : <0x5e>
+    <5a>   DW_AT_location    : 2 byte block: 91 6c      (DW_OP_fbreg: -20)
+ <2><5d>: Abbrev Number: 0
+ <1><5e>: Abbrev Number: 5 (DW_TAG_base_type)
+    <5f>   DW_AT_byte_size   : 4
+    <60>   DW_AT_encoding    : 5        (signed)
+    <61>   DW_AT_name        : int
+ <1><65>: Abbrev Number: 6 (DW_TAG_subprogram)
+    <66>   DW_AT_external    : 1
+    <66>   DW_AT_name        : add
+    <6a>   DW_AT_decl_file   : 1
+    <6b>   DW_AT_decl_line   : 1
+    <6c>   DW_AT_decl_column : 5
+    <6d>   DW_AT_prototyped  : 1
+    <6d>   DW_AT_type        : <0x5e>
+    <71>   DW_AT_low_pc      : 0x401106
+    <79>   DW_AT_high_pc     : 0x18
+    <81>   DW_AT_frame_base  : 1 byte block: 9c         (DW_OP_call_frame_cfa)
+    <83>   DW_AT_call_all_calls: 1
+ <2><83>: Abbrev Number: 1 (DW_TAG_formal_parameter)
+    <84>   DW_AT_name        : a
+    <86>   DW_AT_decl_file   : 1
+    <86>   DW_AT_decl_line   : 1
+    <86>   DW_AT_decl_column : 13
+    <87>   DW_AT_type        : <0x5e>
+    <8b>   DW_AT_location    : 2 byte block: 91 6c      (DW_OP_fbreg: -20)
+ <2><8e>: Abbrev Number: 1 (DW_TAG_formal_parameter)
+    <8f>   DW_AT_name        : b
+    <91>   DW_AT_decl_file   : 1
+    <91>   DW_AT_decl_line   : 1
+    <91>   DW_AT_decl_column : 20
+    <92>   DW_AT_type        : <0x5e>
+    <96>   DW_AT_location    : 2 byte block: 91 68      (DW_OP_fbreg: -24)
+ <2><99>: Abbrev Number: 0
+ <1><9a>: Abbrev Number: 0
+
+Raw dump of debug contents of section .debug_line:
+
+  Offset:                      0
+  Length:                      88
+  DWARF Version:               5
+  Address size (bytes):        8
+  Segment selector (bytes):    0
+  Prologue Length:             42
+  Minimum Instruction Length:  1
+  Maximum Ops per Instruction: 1
+  Initial value of 'is_stmt':  1
+  Line Base:                   -5
+  Line Range:                  14
+  Opcode Base:                 13
+
+ Opcodes:
+  Opcode 1 has 0 args
+  Opcode 2 has 1 arg
+  Opcode 3 has 1 arg
+  Opcode 4 has 1 arg
+  Opcode 5 has 1 arg
+  Opcode 6 has 0 args
+  Opcode 7 has 0 args
+  Opcode 8 has 0 args
+  Opcode 9 has 1 arg
+  Opcode 10 has 0 args
+  Opcode 11 has 0 args
+  Opcode 12 has 1 arg
+
+ The Directory Table (offset 0x22, lines 1, columns 1):
+  Entry Name
+  0     (indirect line string, offset: 0): /home/jam-nitro/Documents/career_plan_debugger/stepwise
+
+ The File Name Table (offset 0x2c, lines 2, columns 2):
+  Entry Dir     Name
+  0     0       (indirect line string, offset: 0x38): tiny.c
+  1     0       (indirect line string, offset: 0x38): tiny.c
+
+ Line Number Statements:
+  [0x00000036]  Set column to 23
+  [0x00000038]  Extended opcode 2: set Address to 0x401106
+  [0x00000043]  Copy
+  [0x00000044]  Set column to 14
+  [0x00000046]  Special opcode 202: advance Address by 14 to 0x401114 and Line by 1 to 2
+  [0x00000047]  Set column to 1
+  [0x00000049]  Special opcode 118: advance Address by 8 to 0x40111c and Line by 1 to 3
+  [0x0000004a]  Set column to 16
+  [0x0000004c]  Special opcode 35: advance Address by 2 to 0x40111e and Line by 2 to 5
+  [0x0000004d]  Set column to 13
+  [0x0000004f]  Special opcode 174: advance Address by 12 to 0x40112a and Line by 1 to 6
+  [0x00000050]  Set column to 12
+  [0x00000052]  Advance PC by constant 17 to 0x40113b
+  [0x00000053]  Special opcode 20: advance Address by 1 to 0x40113c and Line by 1 to 7
+  [0x00000054]  Set column to 1
+  [0x00000056]  Special opcode 48: advance Address by 3 to 0x40113f and Line by 1 to 8
+  [0x00000057]  Advance PC by 2 to 0x401141
+  [0x00000059]  Extended opcode 1: End of Sequence
+
+
