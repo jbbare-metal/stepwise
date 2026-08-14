@@ -11,11 +11,11 @@ everything else gets written in: worth locking down before moving on.
 
 ## 1. The building blocks
 
-| Unit | Size | Notes |
-|---|---|---|
-| **bit** | 1 | a single `0` or `1` |
-| **nibble** | 4 bits | = exactly 1 hex digit |
-| **byte** | 8 bits = 2 nibbles | holds values `0`–`255` (`0x00`–`0xFF`) |
+| Unit       | Size               | Notes                                  |
+| ---------- | ------------------ | -------------------------------------- |
+| **bit**    | 1                  | a single `0` or `1`                    |
+| **nibble** | 4 bits             | = exactly 1 hex digit                  |
+| **byte**   | 8 bits = 2 nibbles | holds values `0`–`255` (`0x00`–`0xFF`) |
 
 A byte has 2⁸ = **256** possible values. That's why a byte always maps to exactly **two hex
 digits**: one per nibble.
@@ -31,6 +31,7 @@ Decimal doesn't divide evenly like that, which makes it far less useful for look
 memory.
 
 Quick anchors worth memorizing:
+
 - `0xF` = `1111` = 15 (the largest value one hex digit can hold)
 - `0xFF` = `1111 1111` = 255 (the largest value one byte can hold)
 - `0x10` = 16: not ten. Easy trap for anyone coming from decimal.
@@ -39,16 +40,19 @@ Quick anchors worth memorizing:
 
 **Binary → Hex:** split the bits into groups of 4 (nibbles) from the right, then convert
 each group.
+
 ```
 1101 0110  →  D        6   →  0xD6
 ```
 
 **Hex → Binary:** expand each hex digit back into 4 bits.
+
 ```
 0x2A  →  0010 1010
 ```
 
 **Hex → Decimal:** multiply each digit by its place value (16⁰, 16¹, …) and add.
+
 ```
 0x2A = (2 × 16) + (10 × 1) = 32 + 10 = 42
 ```
@@ -100,6 +104,7 @@ xxd tiny | head -1
 ```
 
 The first line of output starts `7f 45 4c 46`. Those four bytes are:
+
 - `0x7f` (not printable)
 - `0x45` = `'E'`
 - `0x4c` = `'L'`
@@ -111,20 +116,4 @@ printable character.
 
 ---
 
-## Exercise
-
-The exercise questions live in `day1_questions.md`. Work through them there, then check
-answers in `day1_answers.md`.
-
----
-
-## Done when
-
-- All 5 exercise answers check out, with notes closed.
-- The little-endian rule can be stated in one sentence: *"the least-significant byte is
-  stored at the lowest address."*
-- The reasoning behind `word & 0xff` giving an instruction's first byte makes sense
-  end-to-end, not just as a memorized fact.
-
-**If it isn't clicking:** CS:APP §2.1 covers bytes/hex/endianness with more worked examples,
-though the material above is complete on its own.
+## 
