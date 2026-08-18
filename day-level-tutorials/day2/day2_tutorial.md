@@ -58,22 +58,6 @@ same idea as `p` in the example above: a 64-bit number naming a location in the 
 Reading a variable's value in a debugger is exactly the same operation as `*p`: go to an address,
 read some bytes, interpret them by type.
 
----
 
-## Hands-on
-
-```c
-#include <stdio.h>
-int main(void){
-    int x = 42;
-    int *p = &x;
-    printf("x=%d  &x=%p  *p=%d  sizeof(p)=%zu\n", x, (void*)p, *p, sizeof(p));
-    return 0;
-}
-```
-
-Compile and run it. Look at the output: `&x` prints as a long hex address, `*p` prints as `42`
-(the value, not the address), and `sizeof(p)` prints as `8` (the pointer's own size in bytes,
-regardless of what it points to).
 
 ---

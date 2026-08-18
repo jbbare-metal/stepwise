@@ -94,25 +94,7 @@ That single line is the payoff for today's material. Later, when that expression
 breakpoint code, it should read as "grab the byte physically sitting at this address," not as
 a magic incantation.
 
----
 
-## Hands-on
-
-```bash
-gcc -g -O0 -no-pie -fno-omit-frame-pointer tiny.c -o tiny
-xxd tiny | head -1
-```
-
-The first line of output starts `7f 45 4c 46`. Those four bytes are:
-
-- `0x7f` (not printable)
-- `0x45` = `'E'`
-- `0x4c` = `'L'`
-- `0x46` = `'F'`
-
-Together: the **ELF magic number**, `\x7fELF`. Every ELF binary (every Linux executable)
-starts with this. `xxd` shows `.ELF` in its right-hand ASCII column, since `0x7f` has no
-printable character.
 
 ---
 

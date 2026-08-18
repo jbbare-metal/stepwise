@@ -10,12 +10,12 @@ map of a running program tells us exactly *where* each debugger feature has to o
 
 ## 1. The four regions, at a glance
 
-| Region | Holds | Notes |
-|---|---|---|
-| **`.text`** | machine instructions (the compiled code) | read + execute, not normally writable |
-| **`.data` / `.bss`** | global and `static` variables | `.data` = initialized, `.bss` = zero-initialized |
-| **heap** | dynamically allocated memory (`malloc`) | grows toward **higher** addresses |
-| **stack** | local variables, saved registers, return addresses | grows toward **lower** addresses |
+| Region               | Holds                                              | Notes                                            |
+| -------------------- | -------------------------------------------------- | ------------------------------------------------ |
+| **`.text`**          | machine instructions (the compiled code)           | read + execute, not normally writable            |
+| **`.data` / `.bss`** | global and `static` variables                      | `.data` = initialized, `.bss` = zero-initialized |
+| **heap**             | dynamically allocated memory (`malloc`)            | grows toward **higher** addresses                |
+| **stack**            | local variables, saved registers, return addresses | grows toward **lower** addresses                 |
 
 ## 2. Walking through each one
 
@@ -47,35 +47,3 @@ up.
 
 Later in the plan (Week 3), these same regions show up live in `/proc/<pid>/maps`, the kernel's
 own listing of exactly what's mapped where in a running process.
-
----
-
-## Hands-on
-
-```bash
-readelf -S tiny | grep -E '\.text|\.data|\.bss'
-nm tiny | grep -E 'add|main'
-```
-
-`readelf -S` lists each section along with its address and size, so it's possible to see exactly
-where `.text`, `.data`, and `.bss` sit. `nm` lists symbols (names mapped to addresses); notice
-that function names like `add` and `main` resolve to addresses that fall inside `.text`.
-
-Optionally, write a small program with a global, a `static`, a `malloc`'d buffer, and a local
-variable, and for each one, work out which region it lives in.
-
----
-
-## Exercise
-
-The exercise questions live in `day3_questions.md`. Work through them there, then check answers
-in `day3_answers.md`.
-
----
-
-## Done when
-
-- Each kind of data (a local, a `malloc`'d buffer, a function's code, a global) can be placed in
-  its correct region without hesitation.
-- "Stack grows down, heap grows up" is automatic.
-- `.text`, `.data`, and `.bss` have actually been located with `readelf` on `tiny`.

@@ -64,24 +64,7 @@ deliberately, to see how optimized or PIE binaries behave differently.
 - **`gdb ./tiny`** is the reference debugger. Whenever it's unclear how a debugger *should*
   behave in some situation, that's the tool to go check.
 
----
 
-## Hands-on
-
-```bash
-objdump -d tiny
-```
-
-Find the `add` function in the output. With `-O0`, its body looks roughly like:
-
-```
-mov -0x4(%rbp),%edx
-mov -0x8(%rbp),%eax
-add %edx,%eax
-```
-
-Find the specific `add` instruction that performs the arithmetic (as opposed to the function
-named `add`, which is different from the `add` instruction).
 
 ---
 
