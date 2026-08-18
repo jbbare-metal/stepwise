@@ -1,4 +1,4 @@
-# Day 2: A Pointer Is Just an Address
+# Day 2 Part 1: A Pointer Is Just an Address
 
 ## Why this matters
 
@@ -57,7 +57,5 @@ Later, commands like `break 0x401136` or "show me the local variable `x`" boil d
 same idea as `p` in the example above: a 64-bit number naming a location in the tracee's memory.
 Reading a variable's value in a debugger is exactly the same operation as `*p`: go to an address,
 read some bytes, interpret them by type.
-
-
 
 ---

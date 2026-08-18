@@ -1,71 +1,58 @@
-# Day 4: The Toolchain: the Instruments Used Every Day
+# Day 4: The Registers and What They Hold
 
 ## Why this matters
 
-The next several months are spent living inside a handful of command-line tools. `objdump`,
-`readelf`, and `gdb` are ground truth: when a homemade debugger disagrees with them, they're
-right and the homemade one has a bug. Knowing the standard build flags is also what keeps
-addresses and source-line mapping sane while learning.
+Registers are the CPU's working state. A debugger reads every one of them (through a command
+called `GETREGS`), rewinds one specific register (`rip`) every single time a breakpoint fires,
+and reads others (`rbp`, `rsp`, the argument registers) to walk stacks and locate variables.
+None of that is possible without first being able to name the registers and say what each one
+is for.
 
 ---
 
-## 1. The tools and what each one is for
+## 1. What a register is
 
-| Tool                 | Job                                                      |
-| -------------------- | -------------------------------------------------------- |
-| `gcc`                | compiles C source into an ELF executable                 |
-| `objdump -d`         | disassembles a binary into readable assembly             |
-| `readelf`            | inspects ELF file structure and DWARF debug info         |
-| `nm`                 | lists symbols (names mapped to addresses)                |
-| `xxd` / `hexdump -C` | shows a file's raw bytes                                 |
-| `addr2line`          | maps an address to a `file:line`                         |
-| `strace`             | traces the syscalls a program makes                      |
-| `gdb`                | the reference debugger: the oracle to check work against |
+Registers are a small set of extremely fast storage slots that live *inside* the CPU itself, as
+opposed to out in main memory. x86-64 has 16 general-purpose 64-bit registers, plus two special
+ones covered below: `rip` and the flags register.
 
-## 2. The standard build flags, and why each exists
+## 2. Sub-registers: the same slot, viewed narrower
 
-Throughout this project, C programs get compiled with this line:
+Each general-purpose register has smaller "views" of itself, all sharing the same physical
+storage:
 
-```bash
-gcc -g -O0 -no-pie -fno-omit-frame-pointer tiny.c -o tiny
+```
+rax (64-bit) -> eax (low 32 bits) -> ax (low 16 bits) -> al (low 8 bits)
 ```
 
-- **`-g`**: emit DWARF debug information (the data that maps machine code back to source lines
-  and variable names). Without it, there's nothing for a debugger to work from.
-- **`-O0`**: disable optimization. Optimized code reorders instructions, eliminates variables,
-  and generally makes the mapping between source and machine code messy. `-O0` keeps that
-  mapping clean and predictable while learning.
-- **`-no-pie`**: build a fixed-address (non-position-independent) executable. Normally, modern
-  binaries get loaded at a randomized address every run (ASLR); `-no-pie` turns that off, so an
-  address seen in the disassembly today is the same address the program actually runs at.
-- **`-fno-omit-frame-pointer`**: keep the `rbp` register dedicated to tracking stack frames.
-  Without this, the compiler is free to reuse `rbp` as a general-purpose register, which breaks
-  the simple stack-walking technique this project relies on for backtraces.
+Compilers commonly use the 32-bit names (`eax`, `edi`, `esi`, ...) when working with C `int`
+values, since an `int` is 4 bytes. That's why disassembly of code passing plain integers shows
+`edi`/`esi` rather than `rdi`/`rsi`, even though `rdi`/`rsi` are the "full" 64-bit registers.
 
-These four flags are the standing build line for the whole project. They only get dropped later,
-deliberately, to see how optimized or PIE binaries behave differently.
+## 3. The special-purpose registers
 
-## 3. What each tool actually shows
+- **`rip`**, the instruction pointer: holds the address of the *next* instruction the CPU is
+  about to execute. This is the single most important register to a debugger. When a breakpoint
+  fires, `rip` gets rewound; to resume execution somewhere specific, `rip` gets set.
+- **`rsp`**, the stack pointer: holds the address of the current top of the stack (the lowest
+  in-use address on the stack, since the stack grows downward).
+- **`rbp`**, the base/frame pointer: a fixed anchor point within the current function's stack
+  frame, established by that function's prologue. Following the chain of saved `rbp` values is
+  how a debugger walks the call stack.
+- **`rax`**: holds a function's return value; otherwise general-purpose.
+- **`eflags`**: not one value but a set of individual bits (zero flag, sign flag, carry flag,
+  overflow flag, and more), set by comparisons and arithmetic, and read by conditional jumps to
+  decide whether to branch.
 
-- **`objdump -d tiny`** prints the disassembled machine code. `objdump -d --source tiny`
-  interleaves the original C source alongside it.
-- **`readelf -S`** lists a binary's sections (`.text`, `.data`, and so on).
-  **`readelf --debug-dump=info,line,frames`** dumps the DWARF debug data directly; this becomes
-  essential once DWARF parsing starts, further into the project.
-- **`nm tiny`** lists every symbol (function and global variable name) alongside its address.
-- **`xxd tiny`** or **`hexdump -C tiny`** dump the raw bytes of the file, useful for confirming
-  exactly what's on disk.
-- **`addr2line -e tiny <addr>`** takes a raw address and reports which source file and line it
-  corresponds to. This exact capability gets rebuilt from scratch later; for now, `addr2line`
-  is there to check that rebuilt version against.
-- **`strace ./tiny`** traces every syscall a program makes. Later on, `strace -e trace=ptrace
-  ./nyxdb ./tiny` will show, syscall by syscall, everything the homemade debugger is doing to
-  its target.
-- **`gdb ./tiny`** is the reference debugger. Whenever it's unclear how a debugger *should*
-  behave in some situation, that's the tool to go check.
+## 4. Why this matters for a debugger
 
-
+`GETREGS` hands back this entire set of registers at once. Every time a breakpoint (a `0xCC`
+trap) fires, `rip` gets rewound by one byte to point back at the instruction that was actually
+supposed to run. Walking the stack means following `rbp`/`rsp`. Reading a function's arguments
+means reading `rdi`/`rsi`/etc, which Day 9 covers in detail.
 
 ---
 
 # 
+
+---

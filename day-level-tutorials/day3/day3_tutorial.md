@@ -1,49 +1,69 @@
-# Day 3: The Memory Regions: Text, Data, Heap, Stack
+# Day 3: The Toolchain: the Instruments Used Every Day
 
 ## Why this matters
 
-Every action a debugger takes touches one specific region of memory. Breakpoints patch code.
-Backtraces and local variables read the stack. Globals live somewhere else again. Knowing the
-map of a running program tells us exactly *where* each debugger feature has to operate.
+The next several months are spent living inside a handful of command-line tools. `objdump`,
+`readelf`, and `gdb` are ground truth: when a homemade debugger disagrees with them, they're
+right and the homemade one has a bug. Knowing the standard build flags is also what keeps
+addresses and source-line mapping sane while learning.
 
 ---
 
-## 1. The four regions, at a glance
+## 1. The tools and what each one is for
 
-| Region               | Holds                                              | Notes                                            |
-| -------------------- | -------------------------------------------------- | ------------------------------------------------ |
-| **`.text`**          | machine instructions (the compiled code)           | read + execute, not normally writable            |
-| **`.data` / `.bss`** | global and `static` variables                      | `.data` = initialized, `.bss` = zero-initialized |
-| **heap**             | dynamically allocated memory (`malloc`)            | grows toward **higher** addresses                |
-| **stack**            | local variables, saved registers, return addresses | grows toward **lower** addresses                 |
+| Tool                 | Job                                                      |
+| -------------------- | -------------------------------------------------------- |
+| `gcc`                | compiles C source into an ELF executable                 |
+| `objdump -d`         | disassembles a binary into readable assembly             |
+| `readelf`            | inspects ELF file structure and DWARF debug info         |
+| `nm`                 | lists symbols (names mapped to addresses)                |
+| `xxd` / `hexdump -C` | shows a file's raw bytes                                 |
+| `addr2line`          | maps an address to a `file:line`                         |
+| `strace`             | traces the syscalls a program makes                      |
+| `gdb`                | the reference debugger: the oracle to check work against |
 
-## 2. Walking through each one
+## 2. The standard build flags, and why each exists
 
-**`.text`**: this is the actual machine instructions a compiler produced from the source code.
-It's normally read-and-execute only, not writable, which is exactly why planting a breakpoint
-(which needs to write one byte into `.text`) is a special operation done through `ptrace` rather
-than an ordinary memory write.
+Throughout this project, C programs get compiled with this line:
 
-**`.data` and `.bss`**: a global like `int g = 5;` is initialized, so its starting value has to
-be stored somewhere in the executable file: that's `.data`. A global like `int g;` (no
-initializer) is implicitly zero, so there's no need to store any bytes for it in the file at all:
-the loader just zeroes out the right amount of space at load time. That's `.bss`, and it's why
-`.bss` can be smaller on disk than it is in memory: the file only records its size, not its
-content.
+```bash
+gcc -g -O0 -no-pie -fno-omit-frame-pointer tiny.c -o tiny
+```
 
-**heap**: memory requested at runtime through `malloc` (and released with `free`) comes from the
-heap. As a program allocates more, the heap grows toward **higher** addresses.
+- **`-g`**: emit DWARF debug information (the data that maps machine code back to source lines
+  and variable names). Without it, there's nothing for a debugger to work from.
+- **`-O0`**: disable optimization. Optimized code reorders instructions, eliminates variables,
+  and generally makes the mapping between source and machine code messy. `-O0` keeps that
+  mapping clean and predictable while learning.
+- **`-no-pie`**: build a fixed-address (non-position-independent) executable. Normally, modern
+  binaries get loaded at a randomized address every run (ASLR); `-no-pie` turns that off, so an
+  address seen in the disassembly today is the same address the program actually runs at.
+- **`-fno-omit-frame-pointer`**: keep the `rbp` register dedicated to tracking stack frames.
+  Without this, the compiler is free to reuse `rbp` as a general-purpose register, which breaks
+  the simple stack-walking technique this project relies on for backtraces.
 
-**stack**: every function call gets a frame on the stack holding its local variables, its saved
-registers, and the address to return to when it's done. Frames are pushed and popped through
-`push`/`pop` and the `rsp` register, and the stack grows toward **lower** addresses as it fills
-up.
+These four flags are the standing build line for the whole project. They only get dropped later,
+deliberately, to see how optimized or PIE binaries behave differently.
 
-## 3. Why this matters for a debugger
+## 3. What each tool actually shows
 
-- Setting a breakpoint means writing into `.text`.
-- Printing a backtrace, or a local variable, means reading the **stack**.
-- Printing a global variable means reading `.data` or `.bss`.
+- **`objdump -d tiny`** prints the disassembled machine code. `objdump -d --source tiny`
+  interleaves the original C source alongside it.
+- **`readelf -S`** lists a binary's sections (`.text`, `.data`, and so on).
+  **`readelf --debug-dump=info,line,frames`** dumps the DWARF debug data directly; this becomes
+  essential once DWARF parsing starts, further into the project.
+- **`nm tiny`** lists every symbol (function and global variable name) alongside its address.
+- **`xxd tiny`** or **`hexdump -C tiny`** dump the raw bytes of the file, useful for confirming
+  exactly what's on disk.
+- **`addr2line -e tiny <addr>`** takes a raw address and reports which source file and line it
+  corresponds to. This exact capability gets rebuilt from scratch later; for now, `addr2line`
+  is there to check that rebuilt version against.
+- **`strace ./tiny`** traces every syscall a program makes. Later on, `strace -e trace=ptrace
+  ./nyxdb ./tiny` will show, syscall by syscall, everything the homemade debugger is doing to
+  its target.
+- **`gdb ./tiny`** is the reference debugger. Whenever it's unclear how a debugger *should*
+  behave in some situation, that's the tool to go check.
 
-Later in the plan (Week 3), these same regions show up live in `/proc/<pid>/maps`, the kernel's
-own listing of exactly what's mapped where in a running process.
+---
+
+# 
