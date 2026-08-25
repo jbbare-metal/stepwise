@@ -3,8 +3,8 @@
 ## Why this matters
 
 The next several months are spent living inside a handful of command-line tools. `objdump`,
-`readelf`, and `gdb` are ground truth: when a homemade debugger disagrees with them, they're
-right and the homemade one has a bug. Knowing the standard build flags is also what keeps
+`readelf`, and `gdb` are ground truth: when the debugger disagrees with them, they're
+right and the debugger has a bug. Knowing the standard build flags is also what keeps
 addresses and source-line mapping sane while learning.
 
 ---
@@ -42,7 +42,7 @@ gcc -g -O0 -no-pie -fno-omit-frame-pointer tiny.c -o tiny
   Without this, the compiler is free to reuse `rbp` as a general-purpose register, which breaks
   the simple stack-walking technique this project relies on for backtraces.
 
-These four flags are the standing build line for the whole project. They only get dropped later,
+These four flags are the standing build options for the project. They only get dropped later,
 deliberately, to see how optimized or PIE binaries behave differently.
 
 ## 3. What each tool actually shows
@@ -59,7 +59,7 @@ deliberately, to see how optimized or PIE binaries behave differently.
   corresponds to. This exact capability gets rebuilt from scratch later; for now, `addr2line`
   is there to check that rebuilt version against.
 - **`strace ./tiny`** traces every syscall a program makes. Later on, `strace -e trace=ptrace
-  ./nyxdb ./tiny` will show, syscall by syscall, everything the homemade debugger is doing to
+  ./nyxdb ./tiny` will show, syscall by syscall, everything the debugger is doing to
   its target.
 - **`gdb ./tiny`** is the reference debugger. Whenever it's unclear how a debugger *should*
   behave in some situation, that's the tool to go check.

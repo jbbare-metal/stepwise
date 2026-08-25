@@ -27,7 +27,7 @@ than an ordinary memory write.
 **`.data` and `.bss`**: a global like `int g = 5;` is initialized, so its starting value has to
 be stored somewhere in the executable file: that's `.data`. A global like `int g;` (no
 initializer) is implicitly zero, so there's no need to store any bytes for it in the file at all:
-the loader just zeroes out the right amount of space at load time. That's `.bss`, and it's why
+the loader just zeroes out the right amount of space at load time: that's `.bss`, and it's why
 `.bss` can be smaller on disk than it is in memory: the file only records its size, not its
 content.
 
@@ -45,5 +45,5 @@ up.
 - Printing a backtrace, or a local variable, means reading the **stack**.
 - Printing a global variable means reading `.data` or `.bss`.
 
-Later in the plan (Week 3), these same regions show up live in `/proc/<pid>/maps`, the kernel's
+These same regions show up live in `/proc/<pid>/maps`, the kernel's
 own listing of exactly what's mapped where in a running process.

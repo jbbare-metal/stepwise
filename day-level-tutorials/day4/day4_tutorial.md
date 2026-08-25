@@ -16,20 +16,12 @@ Registers are a small set of extremely fast storage slots that live *inside* the
 opposed to out in main memory. x86-64 has 16 general-purpose 64-bit registers, plus two special
 ones covered below: `rip` and the flags register.
 
-## 2. Sub-registers: the same slot, viewed narrower
-
-Each general-purpose register has smaller "views" of itself, all sharing the same physical
-storage:
-
-```
-rax (64-bit) -> eax (low 32 bits) -> ax (low 16 bits) -> al (low 8 bits)
-```
 
 Compilers commonly use the 32-bit names (`eax`, `edi`, `esi`, ...) when working with C `int`
 values, since an `int` is 4 bytes. That's why disassembly of code passing plain integers shows
 `edi`/`esi` rather than `rdi`/`rsi`, even though `rdi`/`rsi` are the "full" 64-bit registers.
 
-## 3. The special-purpose registers
+## 2. The special-purpose registers
 
 - **`rip`**, the instruction pointer: holds the address of the *next* instruction the CPU is
   about to execute. This is the single most important register to a debugger. When a breakpoint
@@ -44,6 +36,15 @@ values, since an `int` is 4 bytes. That's why disassembly of code passing plain 
   overflow flag, and more), set by comparisons and arithmetic, and read by conditional jumps to
   decide whether to branch.
 
+## 3. Sub-registers: the same slot, a subset/piece of the register
+
+Each general-purpose register has smaller "views" of itself, all sharing the same physical
+storage:
+
+```
+rax (64-bit) -> eax (low 32 bits) -> ax (low 16 bits) -> al (low 8 bits)
+```
+---
 ## 4. Why this matters for a debugger
 
 `GETREGS` hands back this entire set of registers at once. Every time a breakpoint (a `0xCC`
@@ -53,6 +54,3 @@ means reading `rdi`/`rsi`/etc, which Day 9 covers in detail.
 
 ---
 
-# 
-
----

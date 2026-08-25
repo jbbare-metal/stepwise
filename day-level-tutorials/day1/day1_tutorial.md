@@ -3,9 +3,8 @@
 ## Why this matters
 
 A debugger's whole job is reading and writing another program's memory, one byte at a
-time. Setting a breakpoint literally means overwriting one byte. If hex and little-endian
-aren't second nature, every memory dump starts to look like noise. This is the alphabet
-everything else gets written in: worth locking down before moving on.
+time. Setting a breakpoint literally means overwriting one byte so if hex and little-endian
+aren't second nature, every memory dump starts to look like noise.
 
 ---
 
@@ -17,18 +16,13 @@ everything else gets written in: worth locking down before moving on.
 | **nibble** | 4 bits             | = exactly 1 hex digit                  |
 | **byte**   | 8 bits = 2 nibbles | holds values `0`–`255` (`0x00`–`0xFF`) |
 
-A byte has 2⁸ = **256** possible values. That's why a byte always maps to exactly **two hex
-digits**: one per nibble.
-
 ## 2. Hex (base 16)
 
 Hex digits go `0 1 2 3 4 5 6 7 8 9 a b c d e f`, where `a`=10 … `f`=15. Written with a `0x`
 prefix, e.g. `0x2A`.
 
 **Why hex and not decimal?** One hex digit is exactly one nibble, and two hex digits are
-exactly one byte. That means a hex dump lines up perfectly with memory, byte for byte.
-Decimal doesn't divide evenly like that, which makes it far less useful for looking at raw
-memory.
+exactly one byte. That means a hex dump lines up perfectly with memory, byte for byte while decimal doesn't.
 
 Quick anchors worth memorizing:
 
@@ -51,7 +45,7 @@ each group.
 0x2A  →  0010 1010
 ```
 
-**Hex → Decimal:** multiply each digit by its place value (16⁰, 16¹, …) and add.
+**Hex → Decimal:** multiply each digit by its place value from right to left one of (16⁰, 16¹, …), where 0 in the exponent is the first value and sum the results.
 
 ```
 0x2A = (2 × 16) + (10 × 1) = 32 + 10 = 42
@@ -59,7 +53,11 @@ each group.
 
 **Decimal → Hex:** repeatedly divide by 16, collecting the remainders from bottom to top.
 
-## 3. Endianness: the ordering gotcha
+```
+634/16 = 39 remainder 10(A) →  39/16 = 2 remainder 7 → 2/16 = 0 remainder 2, combine remainders from right to left → 27A
+```
+
+## 3. Endianness:
 
 Once a value takes up more than one byte, such as a 4-byte integer, there needs to be a
 rule for which byte sits at the lowest memory address. That rule is called **endianness**.
@@ -75,7 +73,7 @@ byte:     0D    0C    0B    0A     ← least-significant byte first
 ```
 
 Dumping those four bytes shows `0D 0C 0B 0A`: the reverse of how the number is normally
-written. That reversal is the entire gotcha. Once it's expected, it stops being confusing.
+written.
 
 ## 4. Why this matters for a debugger
 
@@ -90,12 +88,4 @@ Because of little-endian ordering, "the first byte at a given address" turns out
 word & 0xff
 ```
 
-That single line is the payoff for today's material. Later, when that expression shows up in
-breakpoint code, it should read as "grab the byte physically sitting at this address," not as
-a magic incantation.
-
-
-
 ---
-
-## 
