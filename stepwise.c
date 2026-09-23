@@ -3,6 +3,8 @@
 #include <sys/wait.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define TAG_TRACER "[tracer] "
@@ -20,23 +22,52 @@ static void run_child(char **tracee_argv) {
 }
 
 static void run_parent(pid_t child_pid) {
-     int status;
+    char *line = NULL;
+    size_t num_char_read = 0;
+
+    for(;;) {
+        int status;
+
+        printf("stepwise> ");
+        fflush(stdout);
+        
+        if (getline(&line, &num_char_read, stdin) < 0) break;
+        line[strcspn(line, "\n")] = 0; // strip extra characters so the line can be compared correctly
+
+        if (!strcmp(line, "continue") || !strcmp(line, "c")) {
+            ptrace(PTRACE_CONT, child_pid, 0, 0);
+            waitpid(child_pid, &status, 0);
+
+             if (WIFEXITED(status)) {
+                  printf(TAG_TRACER "child exited with code %d\n", WEXITSTATUS(status));
+                  break;
+             } else if(WIFSIGNALED(status)) {
+                  printf(TAG_TRACER "child was killed by signal %d\n", WTERMSIG(status));
+                  break;
+             } else if(WIFSTOPPED(status)) {
+                  printf(TAG_TRACER "child was stopped by signal %d\n", WSTOPSIG(status));
+                  break;
+             }
+        } else if (!strcmp(line, "quit") || !strcmp(line, "q")) {
+            printf(TAG_TRACER "quit option selected %d\n", WSTOPSIG(status));
+            break;
+        } else {
+            printf("unknown command: %s\n", line);
+        }
+    }
+
+    free(line);
+    // int status;
 
      // Wait for the initial stop when the child process is replaced
-     waitpid(child_pid, &status, 0); 
-     printf(TAG_TRACER "child stopped using signal %d\n", WSTOPSIG(status));
+     // waitpid(child_pid, &status, 0); 
+     // printf(TAG_TRACER "child stopped using signal %d\n", WSTOPSIG(status));
 
      // Resume the tracee
-     ptrace(PTRACE_CONT, child_pid, NULL, NULL);
-     waitpid(child_pid, &status, 0);
-
-     if (WIFEXITED(status)) {
-          printf(TAG_TRACER "child exited with code %d\n", WEXITSTATUS(status));
-     } else if(WIFSIGNALED(status)) {
-          printf(TAG_TRACER "child was killed by signal %d\n", WTERMSIG(status));
-     } else if(WIFSTOPPED(status)) {
-          printf(TAG_TRACER "child was stopped by signal %d\n", WSTOPSIG(status));
-     }
+     // ptrace(PTRACE_CONT, child_pid, NULL, NULL);
+     // waitpid(child_pid, &status, 0);
+     //
+     //
 }
 
 int main(int argc, char **argv) {
